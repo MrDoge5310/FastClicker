@@ -1,5 +1,6 @@
 import pygame
 from random import choice
+from tkinter import messagebox
 import sys
 
 
@@ -63,7 +64,7 @@ while not GameOver:
         card.drawCard()
 
     if timer == 0:
-        timer = 20
+        timer = 10
         chosed_card = choice(cards)
         chosed_card.clickMe()
     else:
@@ -86,3 +87,8 @@ while not GameOver:
         GameOver = True
 
     clock.tick(10)
+
+if score < 7:
+    messagebox.showinfo("Fail", f"Game Over\nScore: {score}")
+else:
+    messagebox.showinfo("Success", f"You Won!\nScore: {score}")
