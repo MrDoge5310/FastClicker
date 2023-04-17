@@ -1,7 +1,6 @@
+import sys
 import pygame
 from random import choice
-from tkinter import messagebox
-import sys
 
 
 class Card:
@@ -37,20 +36,21 @@ clock = pygame.time.Clock()
 
 scr = pygame.display.set_mode((800, 600))
 scr.fill('black')
+GameOver = False
 
 score = 0
-score_rect = pygame.Rect(0, 0, 120, 30)
+score_rect = pygame.Rect(0, 0, 125, 35)
+
+timer = 0
+timer_rect = pygame.Rect(650, 0, 150, 35)
+
+cards = []
+x = 50
+for i in range(5):
+    cards.append(Card(x, 300))
+    x += 150
 
 time = 0
-time_rect = pygame.Rect(680, 0, 120, 30)
-
-x = 50
-cards = []
-for item in range(5):
-    cards.append(Card(x + 150 * item, 300))
-
-GameOver = False
-timer = 0
 while not GameOver:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -63,32 +63,24 @@ while not GameOver:
     for card in cards:
         card.drawCard()
 
-    if timer == 0:
-        timer = 10
+    if time == 0:
+        time = 20
         chosed_card = choice(cards)
         chosed_card.clickMe()
     else:
-        timer -= 1
+        time -= 1
 
-    if timer == 0:
+    if time == 0:
         chosed_card.color = 'red'
 
-    time += 0.1
-    time_font = pygame.font.SysFont('verdana', 25).render('Time: ' + str(time), True, 'black')
-    score_font = pygame.font.SysFont('verdana', 25).render('Score: ' + str(score), True, 'black')
     pygame.draw.rect(scr, 'white', score_rect)
-    pygame.draw.rect(scr, 'white', time_rect)
-
+    score_font = pygame.font.SysFont('verdana', 25).render('Score: ' + str(score), True, 'black')
     scr.blit(score_font, score_rect)
-    scr.blit(time_font, time_rect)
+
+    timer += 0.1
+    pygame.draw.rect(scr, 'white', timer_rect)
+    timer_font = pygame.font.SysFont('verdana', 25).render('Time: ' + str(round(timer, 1)), True, 'black')
+    scr.blit(timer_font, timer_rect)
+
     pygame.display.update()
-
-    if time >= 10:
-        GameOver = True
-
     clock.tick(10)
-
-if score < 7:
-    messagebox.showinfo("Fail", f"Game Over\nScore: {score}")
-else:
-    messagebox.showinfo("Success", f"You Won!\nScore: {score}")
