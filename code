@@ -1,96 +1,87 @@
-import sys
 import pygame
 from random import choice
-from tkinter import messagebox
+pygame.init()
 
 
 class Card:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.color = 'red'
-        self.rect = pygame.Rect(x, y, 100, 200)
-
-    def drawCard(self):
-        pygame.draw.rect(scr, self.color, self.rect)
-
-    def clickMe(self):
+    def __init__(self, x_, y_):
+        self.x = x_
+        self.y = y_
+        self.width = 100
+        self.height = 200
         self.color = 'yellow'
-        font = pygame.font.SysFont('verdana', 25).render('Click!', True, 'black')
-        scr.blit(font, (self.rect.centerx - 30, self.rect.centery - 15))
+        self.active = False
+        self.text = ''
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-    def clickOnCard(self):
-        self.color = 'red'
+    def draw(self):
+        pygame.draw.rect(scr, self.color, self.rect)
+        font = pygame.font.SysFont('verdana', 20).render(self.text, True, 'black')
+        scr.blit(font, (self.rect.centerx - 25, self.rect.centery - 5))
+
+    def make_active(self):
+        self.active = True
+        self.color = 'purple'
+        self.text = 'Click!'
+
+    def reset(self):
+        self.active = False
+        self.color = 'yellow'
+        self.text = ''
+
+    def click(self):
+        if self.active:
+            return True
+        else:
+            return False
 
 
-def mouse_click(x, y):
-    if x in range(chosed_card.rect.x, chosed_card.rect.x + chosed_card.rect.width) \
-            and y in range(chosed_card.rect.y, chosed_card.rect.y + chosed_card.rect.height):
-        chosed_card.clickOnCard()
-        return True
-    else:
-        return False
+width = 800
+height = 600
 
+scr = pygame.display.set_mode((width, height))
+pygame.display.set_caption('Fast Clicker')
 
-pygame.init()
 clock = pygame.time.Clock()
-
-scr = pygame.display.set_mode((800, 600))
-scr.fill('black')
-GameOver = False
-
 score = 0
-score_rect = pygame.Rect(0, 0, 125, 35)
-
-timer = 0
-timer_rect = pygame.Rect(650, 0, 150, 35)
 
 cards = []
 x = 50
 for i in range(5):
-    cards.append(Card(x, 300))
+    new_card = Card(x, 350)
+    cards.append(new_card)
     x += 150
 
-time = 0
+wait = 0
+GameOver = False
 while not GameOver:
+    if wait == 0:
+        wait = 90
+        active_card = choice(cards)
+        active_card.make_active()
+    elif wait == 1:
+        active_card.reset()
+        wait -= 1
+    else:
+        wait -= 1
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            GameOver = True
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             x, y = event.pos
-            if mouse_click(x, y):
-                score += 1
+            for card in cards:
+                if card.rect.collidepoint(x, y):
+                    if card.click():
+                        wait = 1
+                        score += 1
+                    else:
+                        score -= 1
 
+    scr.fill('black')
     for card in cards:
-        card.drawCard()
-
-    if time == 0:
-        time = 10
-        chosed_card = choice(cards)
-        chosed_card.clickMe()
-    else:
-        time -= 1
-
-    if time == 0:
-        chosed_card.color = 'red'
-
-    pygame.draw.rect(scr, 'white', score_rect)
-    score_font = pygame.font.SysFont('verdana', 25).render('Score: ' + str(score), True, 'black')
-    scr.blit(score_font, score_rect)
-
-    timer += 0.1
-    pygame.draw.rect(scr, 'white', timer_rect)
-    timer_font = pygame.font.SysFont('verdana', 25).render('Time: ' + str(round(timer, 1)), True, 'black')
-    scr.blit(timer_font, timer_rect)
+        card.draw()
 
     pygame.display.update()
-
-    if timer >= 10:
-        GameOver = True
-
-    clock.tick(10)
-
-if score < 5:
-    messagebox.showinfo("Fail", f"Game Over\nScore: {score}")
-else:
-    messagebox.showinfo("Success", f"You won!!!\nScore: {score}")
+    clock.tick(60)
+pygame.quit()
