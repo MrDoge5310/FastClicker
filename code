@@ -66,8 +66,6 @@ while not GameOver:
 
         past_card = active_card
         active_card.make_active()
-    elif wait == 1:
-        wait -= 1
     else:
         wait -= 1
 
