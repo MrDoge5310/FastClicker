@@ -52,15 +52,21 @@ for i in range(5):
     cards.append(new_card)
     x += 150
 
+past_card = cards[0]
 wait = 0
 GameOver = False
 while not GameOver:
     if wait == 0:
-        wait = 90
+        wait = 60
+        past_card.reset()
         active_card = choice(cards)
+
+        while active_card == past_card:  # защита от повтора карты
+            active_card = choice(cards)
+
+        past_card = active_card
         active_card.make_active()
     elif wait == 1:
-        active_card.reset()
         wait -= 1
     else:
         wait -= 1
@@ -73,7 +79,7 @@ while not GameOver:
             for card in cards:
                 if card.rect.collidepoint(x, y):
                     if card.click():
-                        wait = 1
+                        wait = 0
                         score += 1
                     else:
                         score -= 1
