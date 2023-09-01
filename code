@@ -18,7 +18,7 @@ class TextArea:
         self.rect = pygame.Rect(self.x, self.y, len(self.text) * 20, 20)
         pygame.draw.rect(scr, self.color, self.rect)
         font = pygame.font.SysFont('verdana', 20).render(self.text, True, 'white')
-        scr.blit(font, (self.rect.centerx - 25, self.rect.centery - 5))
+        scr.blit(font, (self.rect.x + 3, self.rect.y - 3))
 
 
 class Card:
@@ -62,9 +62,12 @@ pygame.display.set_caption('Fast Clicker')
 
 clock = pygame.time.Clock()
 score = 0
+timer = 0
 
 score_label = TextArea(0, 0)
-score_label.setText(str(score))
+score_label.setText("Score: " + str(score))
+timer_label = TextArea(800 - 100, 0)
+timer_label.setText("Time: " + str(timer))
 
 cards = []
 x = 50
@@ -104,8 +107,13 @@ while not GameOver:
                         score -= 1
 
     scr.fill('black')
+    score_label.setText("Score: " + str(score))
+
     for card in cards:
         card.draw()
+
+    score_label.draw()
+    timer_label.draw()
 
     pygame.display.update()
     clock.tick(60)
