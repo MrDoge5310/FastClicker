@@ -54,20 +54,69 @@ class Card:
             return False
 
 
+def StartGame():
+    clock = pygame.time.Clock()
+    score = 0
+    timer = 0
+
+    score_label = TextArea(0, 0)
+    score_label.setText("Score: " + str(score))
+    timer_label = TextArea(800 - 120, 0)
+    timer_label.setText("Time: " + str(timer))
+
+    past_card = cards[0]
+    wait = 0
+    GameOver = False
+    while not GameOver:
+        if wait == 0:
+            wait = 60
+            past_card.reset()
+            active_card = choice(cards)
+
+            while active_card == past_card:  # защита от повтора карты
+                active_card = choice(cards)
+
+            past_card = active_card
+            active_card.make_active()
+        else:
+            wait -= 1
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                GameOver = True
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = event.pos
+                for card in cards:
+                    if card.rect.collidepoint(x, y):
+                        if card.click():
+                            wait = 0
+                            score += 1
+                        else:
+                            score -= 1
+
+        scr.fill('black')
+        score_label.setText("Score: " + str(score))
+        timer += 100 // 60 * 0.01
+        timer_label.setText("Time: " + str(round(timer, 1)))
+
+        for card in cards:
+            card.draw()
+
+        score_label.draw()
+        timer_label.draw()
+
+        if timer > 10:
+            break
+
+        pygame.display.update()
+        clock.tick(60)
+
+
 width = 800
 height = 600
 
 scr = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Fast Clicker')
-
-clock = pygame.time.Clock()
-score = 0
-timer = 0
-
-score_label = TextArea(0, 0)
-score_label.setText("Score: " + str(score))
-timer_label = TextArea(800 - 100, 0)
-timer_label.setText("Time: " + str(timer))
 
 cards = []
 x = 50
@@ -76,45 +125,6 @@ for i in range(5):
     cards.append(new_card)
     x += 150
 
-past_card = cards[0]
-wait = 0
-GameOver = False
-while not GameOver:
-    if wait == 0:
-        wait = 60
-        past_card.reset()
-        active_card = choice(cards)
+StartGame()
 
-        while active_card == past_card:  # защита от повтора карты
-            active_card = choice(cards)
-
-        past_card = active_card
-        active_card.make_active()
-    else:
-        wait -= 1
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            GameOver = True
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            x, y = event.pos
-            for card in cards:
-                if card.rect.collidepoint(x, y):
-                    if card.click():
-                        wait = 0
-                        score += 1
-                    else:
-                        score -= 1
-
-    scr.fill('black')
-    score_label.setText("Score: " + str(score))
-
-    for card in cards:
-        card.draw()
-
-    score_label.draw()
-    timer_label.draw()
-
-    pygame.display.update()
-    clock.tick(60)
 pygame.quit()
