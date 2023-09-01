@@ -106,10 +106,49 @@ def StartGame():
         timer_label.draw()
 
         if timer > 10:
-            break
+            if score > 10:
+                return True
+            else:
+                return False
 
         pygame.display.update()
         clock.tick(60)
+
+
+def menu(win_status):
+    scr.fill('black')
+    button1 = Card(100, 300)
+    button2 = Card(500, 300)
+
+    text = TextArea(400 - 100, 300)
+    if win_status:
+        text.setText('You Win!')
+    else:
+        text.setText('You Loose!')
+
+    text.draw()
+
+    button1.text = 'Restart'
+    button2.text = 'Exit'
+
+    button1.draw()
+    button2.draw()
+
+
+    menu = True
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                menu = False
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = event.pos
+                if button1.rect.collidepoint(x, y):
+                    StartGame()
+                    menu = False
+                elif button2.rect.collidepoint(x, y):
+                    pygame.quit()
+                    menu = False
+        pygame.display.update()
 
 
 width = 800
@@ -125,6 +164,7 @@ for i in range(5):
     cards.append(new_card)
     x += 150
 
-StartGame()
+win_status = StartGame()
+menu(win_status)
 
 pygame.quit()
