@@ -1,170 +1,77 @@
-import pygame
-from random import choice
-pygame.init()
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QListWidget, QLineEdit, QTextEdit, QInputDialog, QHBoxLayout, QVBoxLayout, QFormLayout
 
 
-class TextArea:
-    def __init__(self, x_, y_):
-        self.x = x_
-        self.y = y_
-        self.color = 'black'
-        self.text = ''
-        self.rect = None
-
-    def setText(self, text):
-        self.text = text
-
-    def draw(self):
-        self.rect = pygame.Rect(self.x, self.y, len(self.text) * 20, 20)
-        pygame.draw.rect(scr, self.color, self.rect)
-        font = pygame.font.SysFont('verdana', 20).render(self.text, True, 'white')
-        scr.blit(font, (self.rect.x + 3, self.rect.y - 3))
+import json
 
 
-class Card:
-    def __init__(self, x_, y_):
-        self.x = x_
-        self.y = y_
-        self.width = 100
-        self.height = 200
-        self.color = 'yellow'
-        self.active = False
-        self.text = ''
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-
-    def draw(self):
-        pygame.draw.rect(scr, self.color, self.rect)
-        font = pygame.font.SysFont('verdana', 20).render(self.text, True, 'black')
-        scr.blit(font, (self.rect.centerx - 25, self.rect.centery - 5))
-
-    def make_active(self):
-        self.active = True
-        self.color = 'purple'
-        self.text = 'Click!'
-
-    def reset(self):
-        self.active = False
-        self.color = 'yellow'
-        self.text = ''
-
-    def click(self):
-        if self.active:
-            return True
-        else:
-            return False
+app = QApplication([])
 
 
-def StartGame():
-    clock = pygame.time.Clock()
-    score = 0
-    timer = 0
-
-    score_label = TextArea(0, 0)
-    score_label.setText("Score: " + str(score))
-    timer_label = TextArea(800 - 120, 0)
-    timer_label.setText("Time: " + str(timer))
-
-    past_card = cards[0]
-    wait = 0
-    GameOver = False
-    while not GameOver:
-        if wait == 0:
-            wait = 60
-            past_card.reset()
-            active_card = choice(cards)
-
-            while active_card == past_card:  # защита от повтора карты
-                active_card = choice(cards)
-
-            past_card = active_card
-            active_card.make_active()
-        else:
-            wait -= 1
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                GameOver = True
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                x, y = event.pos
-                for card in cards:
-                    if card.rect.collidepoint(x, y):
-                        if card.click():
-                            wait = 0
-                            score += 1
-                        else:
-                            score -= 1
-
-        scr.fill('black')
-        score_label.setText("Score: " + str(score))
-        timer += 100 // 60 * 0.01
-        timer_label.setText("Time: " + str(round(timer, 1)))
-
-        for card in cards:
-            card.draw()
-
-        score_label.draw()
-        timer_label.draw()
-
-        if timer > 10:
-            if score > 10:
-                return True
-            else:
-                return False
-
-        pygame.display.update()
-        clock.tick(60)
+'''Інтерфейс програми'''
+# параметри вікна програми
+notes_win = QWidget()
+notes_win.setWindowTitle('Розумні замітки')
+notes_win.resize(900, 600)
 
 
-def menu(win_status):
-    scr.fill('black')
-    button1 = Card(100, 300)
-    button2 = Card(500, 300)
-
-    text = TextArea(400 - 100, 300)
-    if win_status:
-        text.setText('You Win!')
-    else:
-        text.setText('You Loose!')
-
-    text.draw()
-
-    button1.text = 'Restart'
-    button2.text = 'Exit'
-
-    button1.draw()
-    button2.draw()
+# віджети вікна програми
+list_notes = QListWidget()
+list_notes_label = QLabel('Список заміток')
 
 
-    menu = True
-    while menu:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                menu = False
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                x, y = event.pos
-                if button1.rect.collidepoint(x, y):
-                    StartGame()
-                    menu = False
-                elif button2.rect.collidepoint(x, y):
-                    pygame.quit()
-                    menu = False
-        pygame.display.update()
+button_note_create = QPushButton('Створити замітку') # з'являється вікно з полем "Введіть ім'я замітки"
+button_note_del = QPushButton('Видалити замітку')
+button_note_save = QPushButton('Зберегти замітку')
 
 
-width = 800
-height = 600
+field_tag = QLineEdit('')
+field_tag.setPlaceholderText('Введіть тег...')
+field_text = QTextEdit()
+button_tag_add = QPushButton('Додати до замітки')
+button_tag_del = QPushButton('Відкріпити від замітки')
+button_tag_search = QPushButton('Шукати замітки по тегу')
+list_tags = QListWidget()
+list_tags_label = QLabel('Список тегів')
 
-scr = pygame.display.set_mode((width, height))
-pygame.display.set_caption('Fast Clicker')
 
-cards = []
-x = 50
-for i in range(5):
-    new_card = Card(x, 350)
-    cards.append(new_card)
-    x += 150
+# розташування віджетів по лейаутах
+layout_notes = QHBoxLayout()
+col_1 = QVBoxLayout()
+col_1.addWidget(field_text)
 
-win_status = StartGame()
-menu(win_status)
 
-pygame.quit()
+col_2 = QVBoxLayout()
+col_2.addWidget(list_notes_label)
+col_2.addWidget(list_notes)
+row_1 = QHBoxLayout()
+row_1.addWidget(button_note_create)
+row_1.addWidget(button_note_del)
+row_2 = QHBoxLayout()
+row_2.addWidget(button_note_save)
+col_2.addLayout(row_1)
+col_2.addLayout(row_2)
+
+
+col_2.addWidget(list_tags_label)
+col_2.addWidget(list_tags)
+col_2.addWidget(field_tag)
+row_3 = QHBoxLayout()
+row_3.addWidget(button_tag_add)
+row_3.addWidget(button_tag_del)
+row_4 = QHBoxLayout()
+row_4.addWidget(button_tag_search)
+
+
+col_2.addLayout(row_3)
+col_2.addLayout(row_4)
+
+
+layout_notes.addLayout(col_1, stretch = 2)
+layout_notes.addLayout(col_2, stretch = 1)
+notes_win.setLayout(layout_notes)
+
+
+# запуск програми
+notes_win.show()
+app.exec_()
