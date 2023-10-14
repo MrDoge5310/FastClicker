@@ -3,7 +3,10 @@ from PyQt5.QtWidgets import *
 
 app = QApplication([])
 
-win = QWidget()
+win_width = 500
+win_height = 600
+main_win = QWidget()
+main_win.resize(win_width, win_height)
 
 menu_btn = QPushButton('Меню')
 rest_btn = QPushButton('Відпочити')
@@ -16,10 +19,10 @@ question_text = QLabel('')
 RadioGroupBox = QGroupBox('Варіанти відповідей')
 RadioGroup = QButtonGroup()
 
-ans1_btn = QRadioButton('')
-ans2_btn = QRadioButton('')
-ans3_btn = QRadioButton('')
-ans4_btn = QRadioButton('')
+ans1_btn = QRadioButton('1')
+ans2_btn = QRadioButton('2')
+ans3_btn = QRadioButton('3')
+ans4_btn = QRadioButton('4')
 
 RadioGroup.addButton(ans1_btn)
 RadioGroup.addButton(ans2_btn)
@@ -49,6 +52,18 @@ layout_res.addWidget(lb_correct, alignment=Qt.AlignHCenter)
 AnswerGroupBox.setLayout(layout_res)
 AnswerGroupBox.hide()
 
-RadioGroupBox.show()
+main_line = QVBoxLayout()
+menu_layout = QHBoxLayout()
+
+menu_layout.addWidget(menu_btn)
+menu_layout.addWidget(rest_btn)
+menu_layout.addWidget(box_minutes)
+
+main_line.addLayout(menu_layout)
+main_line.addWidget(RadioGroupBox)
+main_line.addWidget(submit_btn)
+
+main_win.setLayout(main_line)
+main_win.show()
 
 app.exec_()
