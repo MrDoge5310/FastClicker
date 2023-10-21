@@ -14,7 +14,7 @@ box_minutes = QSpinBox()
 box_minutes.setValue(30)
 
 submit_btn = QPushButton('Відповісти')
-question_text = QLabel('')
+question_text = QLabel('Питання 1')
 
 RadioGroupBox = QGroupBox('Варіанти відповідей')
 RadioGroup = QButtonGroup()
@@ -56,14 +56,13 @@ main_line = QVBoxLayout()
 menu_layout = QHBoxLayout()
 
 menu_layout.addWidget(menu_btn)
+menu_layout.addStretch(1)
 menu_layout.addWidget(rest_btn)
 menu_layout.addWidget(box_minutes)
 
 main_line.addLayout(menu_layout)
+main_line.addWidget(question_text, alignment=Qt.AlignHCenter)
 main_line.addWidget(RadioGroupBox)
 main_line.addWidget(submit_btn)
 
 main_win.setLayout(main_line)
-main_win.show()
-
-app.exec_()
